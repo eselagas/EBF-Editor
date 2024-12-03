@@ -1,4 +1,3 @@
-<script>
     let fontSize = 11;  // Set initial fontSize to a valid value for execCommand
     let lastFont = "Arial";
     let lastAlignment = 'justifyLeft';
@@ -574,5 +573,3 @@ function stopResize() {
     reader.readAsText(file);
   }
 }
-
-</script>
