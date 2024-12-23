@@ -8,7 +8,25 @@
     let savedDrawingData = null; // Variable to save drawing data
     let handleScale = 1.0;
     
-    
+function resizeCanvas() {
+    const canvas = document.getElementById('drawingCanvas');
+    if (canvas) {
+        canvas.width = window.innerWidth - 20;
+        canvas.height = window.innerHeight - 108;
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    } else {
+        console.error('Canvas element not found');
+    }
+}
+
+// Resize the canvas on window resize
+window.addEventListener('resize', resizeCanvas);
+
+// Initial canvas size
+resizeCanvas();
+
+
     function execCmd(command) {
   if (command === 'indent') {
     document.execCommand('indent', false, null);
