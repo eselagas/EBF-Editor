@@ -26,20 +26,23 @@
 }
 
 
-// drawingCanvas automatic resize
+// Access the globally defined variables
+const windowWidth = window.windowWidth;
+const windowHeight = window.windowHeight;
+
+// Example usage in resizeCanvas function
 function resizeCanvas() {
- const canvas = document.getElementById('drawingCanvas');
-            canvas.width = window.innerWidth - 20;
-            canvas.height = window.innerHeight - 108;
-        }
-        
-        
+    const canvas = document.getElementById('drawingCanvas');
+    canvas.width = windowWidth - 20;
+    canvas.height = windowHeight - 108;
+}
+
 // Resize the canvas on window resize
 window.addEventListener('resize', resizeCanvas);
 
 // Initial canvas size
 resizeCanvas();
-      
+
 
 // Zoom
 document.addEventListener('DOMContentLoaded', function() {
