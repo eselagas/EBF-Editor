@@ -33,15 +33,11 @@ const windowHeight = window.windowHeight;
 // Example usage in resizeCanvas function
 document.addEventListener('DOMContentLoaded', function() {
     function resizeCanvas() {
-        var canvas = document.getElementById('drawingCanvas');
-        if (canvas) {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        } else {
-            console.error('Canvas element not found');
-        }
+        const canvas = document.getElementById('drawingCanvas');
+            canvas.width = width;
+            canvas.height = height;
+        
     }
-
     resizeCanvas();
 });
 
