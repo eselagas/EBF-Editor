@@ -1,11 +1,13 @@
-    let fontSize = 11;  // Set initial fontSize to a valid value for execCommand
-    let lastFont = "Arial";
+    let fontSize = 14;  // Set initial fontSize to a valid value for execCommand
+    let lastFont = "Roboto";
     let lastAlignment = 'justifyLeft';
     let selectedImage;
     let context; // Declare the context variable for drawing
     let isDrawing = false;
     let x = 0, y = 0;
     let savedDrawingData = null; // Variable to save drawing data
+    let handleScale = 1.0;
+    
     
     function execCmd(command) {
   if (command === 'indent') {
@@ -15,11 +17,111 @@
     const parentElement = range.startContainer.parentElement;
     if (parentElement.tagName !== 'LI') {
       document.execCommand('insertUnorderedList', false, null);
+      // Remove margin from blockquote
+      parentElement.style.margin = '0';
     }
   } else {
     document.execCommand(command, false, null);
   }
 }
+
+
+// drawingCanvas automatic resize
+function resizeCanvas() {
+ const canvas = document.getElementById('drawingCanvas');
+            canvas.width = window.innerWidth - 20;
+            canvas.height = window.innerHeight - 108;
+        }
+        
+        
+// Resize the canvas on window resize
+window.addEventListener('resize', resizeCanvas);
+
+// Initial canvas size
+resizeCanvas();
+      
+
+// Zoom
+document.addEventListener('DOMContentLoaded', function() {
+    let currentScale = 1;
+    let initialDistance = 0;
+
+    function initializePinchToZoom(editor) {
+        function handleTouchStart(event) {
+            if (event.touches.length === 2) {
+                initialDistance = getDistance(event.touches[0], event.touches[1]);
+            }
+        }
+
+        function handleTouchMove(event) {
+            if (event.touches.length === 2) {
+                event.preventDefault();
+                const newDistance = getDistance(event.touches[0], event.touches[1]);
+                const scaleChange = newDistance / initialDistance;
+                currentScale *= scaleChange;
+                editor.style.transform = `scale(${currentScale})`;
+                initialDistance = newDistance;
+            }
+        }
+
+        function handleTouchEnd(event) {
+            // Ensure the scale stays within reasonable bounds
+            if (currentScale < 0.2) {
+                currentScale = 0.2;
+            } else if (currentScale > 3) {
+                currentScale = 3;
+            }
+            editor.style.transform = `scale(${currentScale})`;
+            resizeScale.style.transform = eval(currentScale + currentScale);
+        }
+
+        function getDistance(touch1, touch2) {
+            return Math.hypot(touch2.pageX - touch1.pageX, touch2.pageY - touch1.pageY);
+        }
+
+        editor.addEventListener('touchstart', handleTouchStart);
+        editor.addEventListener('touchmove', handleTouchMove);
+        editor.addEventListener('touchend', handleTouchEnd);
+        
+        // Mouse wheel zoom
+        editor.addEventListener('wheel', handleWheelZoom);
+    }
+
+    function handleWheelZoom(event) {
+        event.preventDefault();
+        const zoomFactor = 0.1;
+        const delta = Math.sign(event.deltaY);
+        currentScale += delta * -zoomFactor;
+        // Ensure the scale stays within reasonable bounds
+        if (currentScale < 0.2) {
+            currentScale = 0.2;
+        } else if (currentScale > 3) {
+            currentScale = 3;
+        }
+        const editor = event.currentTarget;
+        editor.style.transform = `scale(${currentScale})`;
+    }
+
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.addedNodes.length) {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.classList && node.classList.contains('resizable')) {
+                        initializePinchToZoom(node);
+                    }
+                });
+            }
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Check if any resizable elements are already present when the script runs
+    document.querySelectorAll('.resizable').forEach((element) => {
+        initializePinchToZoom(element);
+    });
+});
+
 function insertTable() {
   const rows = prompt("Enter the number of rows:", "2");
   const cols = prompt("Enter the number of columns:", "3");
@@ -29,7 +131,7 @@ function insertTable() {
     for (let i = 0; i < rows; i++) {
       tableHtml += '<tr>';
       for (let j = 0; j < cols; j++) {
-        tableHtml += '<td></td>';
+        tableHtml += '<td><br></td>';
       }
       tableHtml += '</tr>';
     }
@@ -41,6 +143,7 @@ function insertTable() {
     showToolbar('tableToolbar');
   }
 }
+
 
     
 document.addEventListener('keydown', function(event) {
@@ -126,47 +229,144 @@ document.getElementById('editor').addEventListener('click', function(event) {
     selectedImage = null;
   }
 });
+let strokes = []; // Array to store all strokes
+let currentStroke = []; // Array to store the current stroke
 
 function toggleDrawingToolbar() {
-  const drawingToolbar = document.getElementById('drawingToolbar');
-  const drawingCanvas = document.getElementById('drawingCanvas');
-  const textToolbar = document.getElementById('textToolbar');
-  const imageToolbar = document.getElementById('imageToolbar');
+    const drawingToolbar = document.getElementById('drawingToolbar');
+    const drawingCanvas = document.getElementById('drawingCanvas');
+    const textToolbar = document.getElementById('textToolbar');
+    const imageToolbar = document.getElementById('imageToolbar');
 
-  drawingToolbar.classList.toggle('hide');
-  textToolbar.classList.toggle('hide', !drawingToolbar.classList.contains('hide'));
-  if (imageToolbar) imageToolbar.classList.add('hide'); // Check existence
+    drawingToolbar.classList.toggle('hide');
+    textToolbar.classList.toggle('hide', !drawingToolbar.classList.contains('hide'));
+    if (imageToolbar) imageToolbar.classList.add('hide'); // Check existence
 
-  if (!drawingToolbar.classList.contains('hide')) {
-    drawingCanvas.style.display = 'block';
-    drawingCanvas.width = window.innerWidth;
-    drawingCanvas.height = window.innerHeight;
-    context = drawingCanvas.getContext('2d'); // Initialize context
-    drawingCanvas.style.zIndex = '1';
-    drawingCanvas.style.position = 'flex';
-    drawingCanvas.style.top = '0';
-    drawingCanvas.style.left = '0';
+    if (!drawingToolbar.classList.contains('hide')) {
+        drawingCanvas.style.display = 'block';
+        drawingCanvas.style.zIndex = '6';
+        context = drawingCanvas.getContext('2d'); // Initialize context
 
-    // Render saved drawing if it exists
-    if (savedDrawingData) {
-      const savedImage = new Image();
-      savedImage.src = savedDrawingData;
-      savedImage.onload = () => context.drawImage(savedImage, 0, 0);
+        // Render saved drawing if it exists
+        if (savedDrawingData) {
+            const savedImage = new Image();
+            savedImage.src = savedDrawingData;
+            savedImage.onload = () => context.drawImage(savedImage, 0, 0);
+        }
+    } else {
+        drawingCanvas.style.display = 'none';
     }
-  } else {
-    drawingCanvas.style.display = 'none';
-  }
 }
+
+function saveAndHideDrawingToolbar() {
+    const drawingCanvas = document.getElementById('drawingCanvas');
+    const drawingToolbar = document.getElementById('drawingToolbar');
+    const textToolbar = document.getElementById('textToolbar');
+
+    if (drawingCanvas) {
+        savedDrawingData = drawingCanvas.toDataURL();
+    }
+
+    // Keep canvas behind the text
+    drawingCanvas.style.zIndex = '0';
+    textToolbar.classList.remove('hide');
+    drawingToolbar.classList.add('hide');
+}
+
+function setInkThickness(thickness) {
+    context.lineWidth = thickness;
+}
+
+function selectPenColor() {
+    context.lineWidth = 5;
+    context.globalCompositeOperation = 'source-over'; // Ensure we're in drawing mode
+    context.strokeStyle = document.getElementById('penColor').value;
+}
+
+function selectHighlighter(color) {
+    context.lineWidth = 10;
+    context.strokeStyle = document.getElementById('penColor').value;
+}
+
+function selectEraser() {
+    context.globalCompositeOperation = 'destination-out';
+    context.lineWidth = 30; // Set eraser thickness here
+
+    // Function to erase strokes
+    drawingCanvas.addEventListener('mousedown', function(event) {
+        const pos = getMousePos(event);
+        strokes = strokes.filter(stroke => {
+            const isErased = stroke.some(point => {
+                return Math.abs(point.x - pos.x) < context.lineWidth && Math.abs(point.y - pos.y) < context.lineWidth;
+            });
+            return !isErased; // Remove stroke if any point is within the eraser range
+        });
+    });
+}
+
+document.getElementById('drawingCanvas').addEventListener('mousedown', startDrawing);
+document.getElementById('drawingCanvas').addEventListener('touchstart', startDrawing);
+
+document.getElementById('drawingCanvas').addEventListener('mousemove', draw);
+document.getElementById('drawingCanvas').addEventListener('touchmove', draw);
+
+document.getElementById('drawingCanvas').addEventListener('mouseup', stopDrawing);
+document.getElementById('drawingCanvas').addEventListener('touchend', stopDrawing);
+
+document.getElementById('drawingCanvas').addEventListener('mouseout', stopDrawing);
+document.getElementById('drawingCanvas').addEventListener('touchcancel', stopDrawing);
+
+function getMousePos(event) {
+    const rect = drawingCanvas.getBoundingClientRect();
+    return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+    };
+}
+
+function drawLine(context, x1, y1, x2, y2) {
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+    context.stroke();
+    context.closePath();
+}
+
+function startDrawing(event) {
+    isDrawing = true;
+    const pos = getMousePos(event);
+    x = pos.x;
+    y = pos.y;
+    currentStroke = [{x, y}]; // Start a new stroke
+}
+
+function draw(event) {
+    event.preventDefault();
+    if (isDrawing === true) {
+        const pos = getMousePos(event);
+        drawLine(context, x, y, pos.x, pos.y);
+        x = pos.x;
+        y = pos.y;
+        currentStroke.push({x, y}); // Add point to the current stroke
+    }
+}
+
+function stopDrawing() {
+    if (isDrawing === true) {
+        isDrawing = false;
+        strokes.push(currentStroke); // Add the current stroke to the array of strokes
+        context.globalCompositeOperation = 'source-over'; // Reset composite operation after erasing
+    }
+}
+
 
 let selectedCell = null;
 
 document.addEventListener('click', function(event) {
   if (event.target.tagName === 'TD' || event.target.tagName === 'TH') {
-  	console.log('"if" section - first part');
     selectedCell = event.target;
     showTableToolbar();
   } else if (!event.target.closest('.toolbar')) {
-  	console.log('"elseif" section - second part');
     showToolbar('textToolbar');
   }
 });
@@ -177,7 +377,7 @@ document.addEventListener('click', function(event) {
   const textToolbar = document.getElementById('textToolbar');
   const drawingToolbar = document.getElementById('drawingToolbar');
   const imageToolbar = document.getElementById('imageToolbar');
-  const drawingCanvas = document.getElementById('drawingCanvas'); // Ensure drawingCanvas is handled
+  const drawingCanvas = document.getElementById('drawingCanvas');
 
   tableToolbar.classList.remove('hide');
   textToolbar.classList.add('hide');
@@ -258,100 +458,6 @@ function toggleTableToolbar() {
   } else {
     tableToolbar.classList.add('hide');
     textToolbar.classList.remove('hide');
-  }
-}
-
-
-    function saveAndHideDrawingToolbar() {
-  const drawingCanvas = document.getElementById('drawingCanvas');
-  const drawingToolbar = document.getElementById('drawingToolbar');
-  const textToolbar = document.getElementById('textToolbar');
-
-  if (drawingCanvas && drawingCanvas.width > 0) {
-    savedDrawingData = drawingCanvas.toDataURL();
-  }
-
-  // Keep canvas behind the text
-  drawingCanvas.style.zIndex = '-1';
-  drawingCanvas.style.position = 'absolute';
-  drawingCanvas.style.top = '0';
-  drawingCanvas.style.left = '0';
-
-  textToolbar.classList.remove('hide');
-  drawingToolbar.classList.add('hide');
-}
-
-    function setInkThickness(thickness) {
-  context.lineWidth = thickness;
-}
-
-function selectPenColor() {
-context.lineWidth = 5;
-  context.globalCompositeOperation = 'source-over'; // Ensure we're in drawing mode
-  context.strokeStyle = document.getElementById('penColor').value;
-}
-
-
-    function selectHighlighter(color) {
-    context.lineWidth = 10;
-      context.strokeStyle = document.getElementById('penColor').value;
-       // Reset line width for highlighter
-    }
-
-    function selectEraser() {
-  context.globalCompositeOperation = 'destination-out';
-  context.lineWidth = 30; // Set eraser thickness here
-
-  // Function to erase strokes
-  drawingCanvas.addEventListener('mousedown', function(event) {
-    const pos = getMousePos(event);
-    strokes = strokes.filter(stroke => {
-      const isErased = stroke.some(point => {
-        return Math.abs(point.x - pos.x) < context.lineWidth && Math.abs(point.y - pos.y) < context.lineWidth;
-      });
-      return !isErased; // Remove stroke if any point is within the eraser range
-    });
-  });
-}
-    document.getElementById('drawingCanvas').addEventListener('mousedown', startDrawing);
-    document.getElementById('drawingCanvas').addEventListener('touchstart', startDrawing);
-
-    document.getElementById('drawingCanvas').addEventListener('mousemove', draw);
-    document.getElementById('drawingCanvas').addEventListener('touchmove', draw);
-
-    document.getElementById('drawingCanvas').addEventListener('mouseup', stopDrawing);
-    document.getElementById('drawingCanvas').addEventListener('touchend', stopDrawing);
-
-    document.getElementById('drawingCanvas').addEventListener('mouseout', stopDrawing);
-    document.getElementById('drawingCanvas').addEventListener('touchcancel', stopDrawing);
-
-let strokes = []; // Array to store all strokes
-let currentStroke = []; // Array to store the current stroke
-
-function startDrawing(event) {
-  isDrawing = true;
-  const pos = getMousePos(event);
-  x = pos.x;
-  y = pos.y;
-  currentStroke = [{x, y}]; // Start a new stroke
-}
-
-function draw(event) {
-  event.preventDefault();
-  if (isDrawing === true) {
-    const pos = getMousePos(event);
-    drawLine(context, x, y, pos.x, pos.y);
-    x = pos.x;
-    y = pos.y;
-    currentStroke.push({x, y}); // Add point to the current stroke
-  }
-}
-
-function stopDrawing() {
-  if (isDrawing === true) {
-    isDrawing = false;
-    strokes.push(currentStroke); // Add the current stroke to the array of strokes
-    context.globalCompositeOperation = 'source-over'; // Reset composite operation after erasing
   }
 }
 
@@ -558,12 +664,12 @@ function stopResize() {
       if (savedDrawingData) {
         const drawingCanvas = document.getElementById('drawingCanvas');
         drawingCanvas.style.display = 'block';
-        drawingCanvas.style.zIndex = '-1'; // Keep canvas behind text
+        drawingCanvas.style.zIndex = '0'; // Keep canvas behind text
         drawingCanvas.style.position = 'absolute';
         drawingCanvas.style.top = '0';
         drawingCanvas.style.left = '0';
-        drawingCanvas.width = window.innerWidth;
-        drawingCanvas.height = window.innerHeight;
+        drawingCanvas.width = window.innerWidth - 20;
+        drawingCanvas.height = window.innerHeight - 108;
         context = drawingCanvas.getContext('2d');
         const savedImage = new Image();
         savedImage.src = savedDrawingData;
