@@ -7,11 +7,6 @@
     let x = 0, y = 0;
     let savedDrawingData = null; // Variable to save drawing data
     let handleScale = 1.0;
-    
-resizeCanvas();
-
-// Resize the canvas on window resize
-window.addEventListener('resize', resizeCanvas);
 
     function execCmd(command) {
   if (command === 'indent') {
