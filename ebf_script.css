@@ -191,8 +191,9 @@ table:hover, th:hover, td:hover {
 
 #drawingCanvas {
     z-index: 1;
+    width: calc(100% - 60px);
+    height: calc(100vh - 150px);
+    top: 2.5px;
     position: absolute;
-    margin-left: 10px;
-    margin-top: 12px;
     border-radius: 8px;
 }
