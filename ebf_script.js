@@ -25,23 +25,6 @@
   }
 }
 
-
-// Access the globally defined variables
-const windowWidth = window.windowWidth;
-const windowHeight = window.windowHeight;
-
-// Example usage in resizeCanvas function
-document.addEventListener('DOMContentLoaded', function() {
-    function resizeCanvas() {
-        const canvas = document.getElementById('drawingCanvas');
-            canvas.width = width;
-            canvas.height = height;
-        
-    }
-    resizeCanvas();
-});
-
-
 // Zoom
 document.addEventListener('DOMContentLoaded', function() {
     let currentScale = 1;
