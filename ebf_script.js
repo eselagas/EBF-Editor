@@ -31,17 +31,19 @@ const windowWidth = window.windowWidth;
 const windowHeight = window.windowHeight;
 
 // Example usage in resizeCanvas function
-function resizeCanvas() {
-    const canvas = document.getElementById('drawingCanvas');
-    canvas.width = windowWidth - 20;
-    canvas.height = windowHeight - 108;
-}
+document.addEventListener('DOMContentLoaded', function() {
+    function resizeCanvas() {
+        var canvas = document.getElementById('drawingCanvas');
+        if (canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        } else {
+            console.error('Canvas element not found');
+        }
+    }
 
-// Resize the canvas on window resize
-window.addEventListener('resize', resizeCanvas);
-
-// Initial canvas size
-resizeCanvas();
+    resizeCanvas();
+});
 
 
 // Zoom
