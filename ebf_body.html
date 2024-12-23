@@ -1,0 +1,64 @@
+<div id="editorBG" contenteditable="false"></div>
+  <div id="editor" contenteditable="true"></div>
+  <div class="toolbar" id="textToolbar">
+    <button class="save" id="save" onclick="saveFile()">Save</button>
+    <button onclick="execCmd('bold')">Bold</button>
+    <button onclick="execCmd('italic')">Italic</button>
+    <button onclick="execCmd('underline')">Underline</button>
+    <select id="fontSelect" onchange="changeFont(this.value)">
+      <option value="Roboto">Roboto</option>
+      <option value="Arial">Arial</option>
+      <option value="Courier New">Courier New</option>
+      <option value="Georgia">Georgia</option>
+      <option value="Times New Roman">Times New Roman</option>
+      <option value="Verdana">Verdana</option>
+      <option value="Comic Sans MS">Comic Sans MS</option>
+      <option value="Trebuchet MS">Trebuchet MS</option>
+    </select>
+    <button onclick="insertTable()">Insert Table</button>
+    <button onclick="changeFontSize(-1)">A-</button>
+    <button onclick="changeFontSize(1)">A+</button>
+    <button onclick="toggleDrawingToolbar()">Draw</button>
+    <select id="alignSelect" onchange="changeAlignment(this.value)">
+      <option value="">Align</option>
+      <option value="justifyLeft">Left</option>
+      <option value="justifyCenter">Center</option>
+      <option value="justifyRight">Right</option>
+    </select>
+    <button class="open" id="open" onclick="document.getElementById('fileInput').click()">Open</button>
+  </div>
+  
+  <div class="toolbar hide" id="tableToolbar">
+    <button onclick="addRow()">Add Row</button>
+    <button onclick="addColumn()">Add Column</button>
+    <button onclick="deleteRow()">Delete Row</button>
+    <button onclick="deleteColumn()">Delete Column</button>
+    <button onclick="mergeCells()">Merge Cells</button>
+    <button onclick="splitCell()">Split Cell</button>
+    <select onchange="setCellType(this.value)">
+      <option value="">Cell Type</option>
+      <option value="th">Header</option>
+      <option value="td">Cell</option>
+    </select>
+    <select onchange="setAlignment(this.value)">
+      <option value="">Align</option>
+      <option value="left">Left</option>
+      <option value="center">Center</option>
+      <option value="right">Right</option>
+    </select>
+    <button onclick="toggleTextToolbar()">Exit Table Mode</button>
+  </div>
+  
+  <div class="toolbar hide" id="drawingToolbar">
+    <button onclick="selectPenColor()">Pen</button>
+    <button onclick="selectHighlighter()">Highlighter</button>
+    <button onclick="selectEraser()">Eraser</button>
+    <input type="color" id="penColor" value="#000000">
+    <button onclick="setInkThickness(1)">Thin</button>
+    <button onclick="setInkThickness(5)">Medium</button>
+    <button onclick="setInkThickness(10)">Thick</button>
+    <button onclick="saveAndHideDrawingToolbar()">Done</button>
+  </div>
+  
+  <canvas id="drawingCanvas"></canvas>
+  <input type="file" id="fileInput" accept=".ebf" style="display:none" onchange="openFile(event)"/>
