@@ -1,0 +1,198 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f5;
+    align-items: center;
+}
+
+@keyframes slide-up {
+  from {
+    bottom: -40px;
+  }
+  to {
+    bottom: 20px;
+  }
+}
+
+.toolbar {
+  will-change: bottom;
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(248, 248, 248, 0.621); /* Slightly translucent */
+    position: fixed;
+    width: 90%;
+    bottom: 20px;
+    left: 5%;
+    border-radius: 12px;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    justify-content: center;
+    animation: slide-up 1s forwards;
+}
+
+.toolbar button, .toolbar select {
+    padding: 8px 12px;
+    cursor: pointer;
+    border: none;
+    border-radius: 50px;
+    background-color: #6200ea;
+    color: #fff;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.toolbar button:hover, .toolbar select:hover {
+    background-color: #3700b3;
+    transform: translateY(-2px);
+}
+
+@keyframes fadeOutBoxShadow {
+    to {
+        box-shadow: none;
+    }
+}
+
+.toolbar button:focus, .toolbar select:focus {
+    outline: none;
+    box-shadow: 0 0 5px 2px rgba(172, 113, 255, 0.75);
+}
+
+.toolbar button:focus:not(:hover), .toolbar select:focus:not(:hover) {
+    animation: fadeOutBoxShadow 2s forwards; /*fade out the box shadow*/
+}
+
+
+#editor {
+    position: fixed;
+    width: calc(100% - 60px);
+    height: calc(100vh - 150px);
+    top: 2.5px;
+    border: none;
+    padding: 20px;
+    margin: 10px;
+    outline: none;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    font-size: 14px;
+    background-color: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    z-index: 5;
+}
+
+#editorBG {
+    position: fixed;
+    top: 2.5px;
+    padding: 20px;
+    margin: 10px;
+    width: calc(100% - 60px);
+    height: calc(100vh - 150px);
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+#editor::-webkit-scrollbar {
+    display: none; /* Hide scrollbars in WebKit browsers */
+}
+
+.toolbar .save {
+    position: absolute;
+    background-color: #4CAF50;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    right: 94%;
+}
+
+.toolbar .open {
+    position: absolute;
+    background-color: #03A9F4;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    left: 94%;
+}
+
+.toolbar .save:hover{
+    transform: translateX(8px)
+
+}
+.toolbar .open:hover {
+    transform: translateX(-8px);
+}
+
+.hide {
+    display: none;
+}
+
+.resizable {
+    position: relative;
+    display: inline-block;
+    transition: transform 0.3s ease;
+    transform-origin: center center;
+    max-width: fit-content;
+    max-height: fit-content;
+}
+
+.resizable img {
+    display: block;
+    border-radius: 8px;
+}
+
+.resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border: 2px solid #6200ea;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.resize-handle:hover {
+  transform: scale(1.4);
+}
+
+.resize-handle.top-left {
+    top: -5px;
+    left: -5px;
+    cursor: nwse-resize;
+}
+
+.resize-handle.top-right {
+    top: -5px;
+    right: -5px;
+    cursor: nesw-resize;
+}
+
+.resize-handle.bottom-left {
+    bottom: -5px;
+    left: -5px;
+    cursor: nesw-resize;
+}
+
+.resize-handle.bottom-right {
+    bottom: -5px;
+    right: -5px;
+    cursor: nwse-resize;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+    border-collapse: collapse;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+    border-radius: 2px;
+}
+
+table:hover, th:hover, td:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+#drawingCanvas {
+    z-index: 1;
+    position: absolute;
+    margin-left: 10px;
+    margin-top: 12px;
+    border-radius: 8px;
+}
