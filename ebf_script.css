@@ -119,6 +119,10 @@ body {
     transform: translateX(-8px);
 }
 
+#exitTable {
+    colour: red;
+}
+
 .hide {
     display: none;
 }
