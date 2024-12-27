@@ -166,8 +166,6 @@ document.addEventListener('keydown', function(event) {
 
 });
 
-resizeCanvas();
-
 document.addEventListener('click', function(event) {
   if (event.target.tagName === 'TD' || event.target.tagName === 'TH') {
     selectedCell = event.target;
