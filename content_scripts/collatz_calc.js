@@ -38,7 +38,7 @@ window.addEventListener('beforeunload', (event) => {
 // Function to get the highest starting number from existing files
 async function getHighestStartingNumber() {
     try {
-        const response = await fetch(`${API_BASE_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/`, {
+        const response = await fetch(`${API_BASE_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/cc`, {
             headers: {
                 'Authorization': `token ${GITHUB_TOKEN}`
             }
@@ -126,7 +126,7 @@ async function saveProgress() {
         branch: BRANCH
     };
     if (sha) {
-        payload.sha = sha; // Include the SHA if updating an existing file
+        payload.sha = sha;
     }
 
     // Save the file
